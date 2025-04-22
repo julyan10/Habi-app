@@ -37,7 +37,7 @@ if lat_input != 0 and lon_input != 0:
     st.caption("El círculo es representativo del área de búsqueda de 500 metros.")
 
     # Listado de propiedades
-    st.dataframe(df_filtrada[['nombre_cliente', 'precio', 'area_m2', 'bannios', 'alcobas']])
+    st.dataframe(df_filtrada[['nombre_cliente', 'precio', 'area_m2', 'banios', 'alcobas']])
 
 # ----------------------
 # Filtros para análisis
@@ -46,8 +46,8 @@ st.sidebar.header("🎛️ Filtros de búsqueda")
 min_area, max_area = int(df['area_m2'].min()), int(df['area_m2'].max())
 area_range = st.sidebar.slider("Área (m2)", min_value=min_area, max_value=max_area, value=(min_area, max_area))
 
-bannios_unique = sorted(df['bannios'].dropna().unique())
-bannios_filter = st.sidebar.multiselect("Baños", bannios_unique, default=bannios_unique)
+banios_unique = sorted(df['banios'].dropna().unique())
+banios_filter = st.sidebar.multiselect("Baños", banios_unique, default=banios_unique)
 
 alcobas_unique = sorted(df['alcobas'].dropna().unique())
 alcobas_filter = st.sidebar.multiselect("Alcobas", alcobas_unique, default=alcobas_unique)
@@ -56,13 +56,13 @@ alcobas_filter = st.sidebar.multiselect("Alcobas", alcobas_unique, default=alcob
 df_filtros = df[
     (df['area_m2'] >= area_range[0]) &
     (df['area_m2'] <= area_range[1]) &
-    (df['bannios'].isin(bannios_filter)) &
+    (df['banios'].isin(banios_filter)) &
     (df['alcobas'].isin(alcobas_filter))
 ]
 
 # Tabla con precios por cliente
 st.subheader("📊 Tabla: Precio de venta por cliente")
-st.dataframe(df_filtros[['nombre_cliente', 'precio', 'area_m2', 'bannios', 'alcobas']])
+st.dataframe(df_filtros[['nombre_cliente', 'precio', 'area_m2', 'banios', 'alcobas']])
 
 # Gráfico por zona usando agrupación de coordenadas redondeadas como proxy de zona
 st.subheader("📈 Gráfico de precios promedio por zona (aproximada por lat/lon redondeados)")
