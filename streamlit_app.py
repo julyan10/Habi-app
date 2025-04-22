@@ -61,21 +61,21 @@ st_folium(mapa, width=700)
 st.sidebar.header("Filtros adicionales")
 
 alcobas_unique = sorted(df['alcobas'].dropna().unique())
-bannios_unique = sorted(df['bannios'].dropna().unique())
+banios_unique = sorted(df['banios'].dropna().unique())
 
 alcobas_sel = st.sidebar.multiselect("Alcobas", alcobas_unique, default=alcobas_unique)
-bannios_sel = st.sidebar.multiselect("Baños", bannios_unique, default=bannios_unique)
+banios_sel = st.sidebar.multiselect("Baños", banios_unique, default=banios_unique)
 area_min = st.sidebar.slider("Área mínima (m²)", min_value=0, max_value=500, value=0)
 
 df_filtrado = df_filtrado[
     (df_filtrado['alcobas'].isin(alcobas_sel)) &
-    (df_filtrado['bannios'].isin(bannios_sel)) &
+    (df_filtrado['banios'].isin(banios_sel)) &
     (df_filtrado['area_m2'] >= area_min)
 ]
 
 # --- TABLA ---
 st.subheader("Tabla de propiedades filtradas")
-st.dataframe(df_filtrado[['nombre_cliente', 'precio', 'area_m2', 'bannios', 'alcobas', 'ciudad']])
+st.dataframe(df_filtrado[['nombre_cliente', 'precio', 'area_m2', 'banios', 'alcobas', 'ciudad']])
 
 # --- GRÁFICO DE PRECIOS POR CIUDAD ---
 st.subheader("Distribución de precios por ciudad")
