@@ -1,54 +1,47 @@
 import streamlit as st
 import pandas as pd
 from geopy.distance import geodesic
-import folium
-from streamlit_folium import st_folium
-
-# Cargar datos
-@st.cache_data
-def cargar_datos():
-    return pd.read_csv("base prueba bi mid.csv")
-
-df = cargar_datos()
 
 # Título del dashboard
 st.title("Dashboard de Propiedades Cercanas")
-st.markdown("Introduce una coordenada para encontrar propiedades en un radio de 500 metros.")
 
-# Entradas del usuario
-latitud = st.number_input("Latitud", value=4.599700, format="%f")
-longitud = st.number_input("Longitud", value=-74.081700, format="%f")
+# Instrucciones
+st.write("Introduce una coordenada para encontrar propiedades en un radio de 500 metros.")
 
+# Campos para introducir latitud y longitud
+lat = st.number_input("Latitud", format="%.10f", value=4.5997)
+lon = st.number_input("Longitud", format="%.10f", value=-74.0817)
+
+# Botón para activar la búsqueda
 if st.button("Buscar propiedades cercanas"):
-    coordenada_usuario = (latitud, longitud)
+    try:
+        # Cargar datos
+        df = pd.read_csv("base prueba bi mid.csv")
 
-    # Calcular distancia de cada propiedad al punto ingresado
-    df['distancia_m'] = df.apply(lambda row: geodesic(coordenada_usuario, (row['latitud'], row['longitud'])).meters, axis=1)
+        # Verificar si hay columnas necesarias
+        if 'latitud' in df.columns and 'longitud' in df.columns:
+            # Coordenadas del usuario
+            user_coords = (lat, lon)
 
-    # Filtrar propiedades dentro del radio de 500 metros
-    propiedades_cercanas = df[df['distancia_m'] <= 500].copy()
+            # Función para calcular distancia
+            def calcular_distancia(row):
+                return geodesic(user_coords, (row['latitud'], row['longitud'])).meters
 
-    if not propiedades_cercanas.empty:
-        st.success(f"Se encontraron {len(propiedades_cercanas)} propiedades dentro de 500 metros.")
+            # Calcular distancia y filtrar
+            df['distancia_m'] = df.apply(calcular_distancia, axis=1)
+            propiedades_cercanas = df[df['distancia_m'] <= 500]
 
-        # Mostrar mapa con propiedades
-        mapa = folium.Map(location=[latitud, longitud], zoom_start=15)
+            # Mostrar resultados
+            if not propiedades_cercanas.empty:
+                st.success(f"Se encontraron {len(propiedades_cercanas)} propiedades en un radio de 500 metros.")
+                st.map(propiedades_cercanas[['latitud', 'longitud']])
+                st.dataframe(propiedades_cercanas[['area_m2', 'precio', 'banios', 'alcobas', 'nombre_cliente']])
+            else:
+                st.warning("No se encontraron propiedades en un radio de 500 metros.")
+        else:
+            st.error("El archivo no contiene columnas 'latitud' y 'longitud'.")
 
-        # Marcador del usuario
-        folium.Marker([latitud, longitud], popup="Ubicación ingresada", icon=folium.Icon(color='red')).add_to(mapa)
-
-        # Marcadores de propiedades
-        for _, row in propiedades_cercanas.iterrows():
-            folium.Marker(
-                [row['latitud'], row['longitud']],
-                popup=f"{row['nombre_cliente']}\nPrecio: ${row['precio']:,.0f}\nÁrea: {row['area_m2']} m²"
-            ).add_to(mapa)
-
-        # Mostrar el mapa
-        st_data = st_folium(mapa, width=700, height=500)
-
-        # Mostrar tabla de propiedades
-        st.markdown("### Características de las propiedades cercanas")
-        st.dataframe(propiedades_cercanas[['nombre_cliente', 'precio', 'area_m2', 'banios', 'alcobas', 'latitud', 'longitud']])
-    else:
-        st.warning("No se encontraron propiedades dentro del radio de 500 metros.")
+    except FileNotFoundError:
+        st.error("El archivo 'base prueba bi mid.csv' no fue encontrado.")
+    except Exception as e:
+        st.error(f"Ocurrió un error: {e}")
