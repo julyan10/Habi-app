@@ -46,3 +46,31 @@ if st.button("Buscar propiedades cercanas"):
         st.subheader("📋 Listado de propiedades encontradas")
         st.dataframe(propiedades_cercanas.drop(columns=['latitude', 'longitude']), use_container_width=True)
 
+import plotly.express as px
+
+# Crear una columna para "zona aproximada" agrupando lat/lon
+df['zona_aprox'] = df['latitud'].round(2).astype(str) + "_" + df['longitud'].round(2).astype(str)
+
+st.subheader("📊 Dashboard de precios por cliente y por zona")
+
+# Selector de cliente
+clientes = df['nombre_cliente'].dropna().unique()
+cliente_seleccionado = st.selectbox("Selecciona un cliente", sorted(clientes))
+
+# Filtrar datos del cliente
+df_cliente = df[df['nombre_cliente'] == cliente_seleccionado]
+
+# Gráfico de precios por zona aproximada
+zona_agrupada = df_cliente.groupby('zona_aprox')['precio'].mean().reset_index()
+
+fig = px.bar(zona_agrupada, x='zona_aprox', y='precio',
+             labels={'zona_aprox': 'Zona Aproximada', 'precio': 'Precio Promedio'},
+             title=f'Precios promedio por zona para {cliente_seleccionado}')
+
+st.plotly_chart(fig)
+
+# Mostrar tabla
+st.write("Detalle de propiedades:")
+st.dataframe(df_cliente[['latitud', 'longitud', 'precio']])
+
+
