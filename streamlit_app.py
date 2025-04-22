@@ -17,8 +17,8 @@ st.title("🏠 Dashboard de Propiedades - Equipo de Operaciones")
 st.markdown("Este dashboard permite visualizar propiedades a partir de coordenadas específicas, ver estadísticas de precios, y aplicar filtros detallados.")
 
 # Entrada de coordenadas
-lat_input = st.number_input("Ingrese latitud", format="%.6f")
-lon_input = st.number_input("Ingrese longitud", format="%.6f")
+lat_input = st.number_input("Ingrese latitud", value=4.5997, format="%.6f")
+lon_input = st.number_input("Ingrese longitud", value=-74.0817, format="%.6f")
 
 # Calcular distancia entre coordenadas
 def distancia(coord1, coord2):
