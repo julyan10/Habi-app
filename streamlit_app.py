@@ -1,101 +1,125 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
-from geopy.geocoders import Nominatim
-from geopy.extra.rate_limiter import RateLimiter
-from geopy.distance import geodesic
+import plotly.express as px
 import folium
 from streamlit_folium import st_folium
-import plotly.express as px
+from geopy.geocoders import Nominatim
+from geopy.extra.rate_limiter import RateLimiter
+from folium import Circle
+from folium.plugins import MarkerCluster
+from math import radians, cos, sin, sqrt, atan2
 
-# --- CARGAR DATOS ---
-df = pd.read_csv('base prueba bi mid.csv')
+st.set_page_config(layout="wide")
 
-# --- GEOCODIFICACIÓN PARA OBTENER CIUDAD ---
+st.title("🏠 Dashboard de Propiedades - Habi")
+
+# Cargar datos
+@st.cache_data
+def load_data():
+    df = pd.read_csv("base prueba bi mid.csv")
+    return df
+
+df = load_data()
+
+# Geolocalizador
 geolocator = Nominatim(user_agent="geoapiHabi")
-geocode = RateLimiter(geolocator.reverse, min_delay_seconds=1)
-
-def get_city(lat, lon):
-    try:
-        location = geocode((lat, lon), exactly_one=True, language='es')
-        if location and 'address' in location.raw:
-            address = location.raw['address']
-            return address.get('city') or address.get('town') or address.get('village') or 'Ciudad no encontrada'
-        else:
-            return 'Ciudad no encontrada'
-    except:
-        return 'Error al obtener ciudad'
-
-# --- INPUTS DEL USUARIO ---
-st.title("Dashboard de Propiedades (radio de 500m)")
-
-st.sidebar.header("Coordenadas")
-lat_input = st.sidebar.number_input("Latitud", value=4.5997, format="%.6f")
-lon_input = st.sidebar.number_input("Longitud", value=-74.0817, format="%.6f")
+reverse = RateLimiter(geolocator.reverse, min_delay_seconds=1)
 
 # Obtener ciudad
-ciudad = get_city(lat_input, lon_input)
-st.sidebar.markdown(f"**Ciudad detectada:** {ciudad}")
+@st.cache_data
+def get_city(lat, lon):
+    try:
+        location = reverse((lat, lon), exactly_one=True, language='es')
+        if location and 'address' in location.raw:
+            address = location.raw['address']
+            return address.get('city') or address.get('town') or address.get('village')
+    except:
+        return None
 
-# --- FILTRO DE RADIO 500M ---
-def filtrar_radio(df, lat_centro, lon_centro, radio_metros):
-    return df[df.apply(lambda row: geodesic((lat_centro, lon_centro), (row['latitud'], row['longitud'])).meters <= radio_metros, axis=1)]
+# Primer Mapa: Propiedades cercanas
+st.header("🔍 Propiedades en un radio de 500 metros")
+col1, col2 = st.columns(2)
+with col1:
+    lat_input = st.number_input("Latitud", value=4.5997, format="%.6f")
+with col2:
+    lon_input = st.number_input("Longitud", value=-74.0817, format="%.6f")
 
-df_filtrado = filtrar_radio(df, lat_input, lon_input, 500)
-df_filtrado = df_filtrado.copy()
-df_filtrado['ciudad'] = ciudad
+# Función para calcular distancia
+def haversine(lat1, lon1, lat2, lon2):
+    R = 6371.0
+    dlat = radians(lat2 - lat1)
+    dlon = radians(lon2 - lon1)
+    a = sin(dlat / 2)**2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon / 2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    return R * c * 1000
 
-st.subheader(f"Propiedades encontradas en 500m: {len(df_filtrado)}")
+# Filtrar propiedades en 500m
+df["distancia_m"] = df.apply(lambda row: haversine(lat_input, lon_input, row["latitud"], row["longitud"]), axis=1)
+df_cercanas = df[df["distancia_m"] <= 500]
 
-# --- MAPA INTERACTIVO ---
-mapa = folium.Map(location=[lat_input, lon_input], zoom_start=16)
-folium.Circle(location=(lat_input, lon_input), radius=500, color="blue", fill=True, fill_opacity=0.1).add_to(mapa)
+# Mapa con circunferencia
+m = folium.Map(location=[lat_input, lon_input], zoom_start=16)
+Circle(location=(lat_input, lon_input), radius=500, color='blue', fill=True, fill_opacity=0.1).add_to(m)
+marker_cluster = MarkerCluster().add_to(m)
 
-for _, row in df_filtrado.iterrows():
-    folium.Marker(location=[row['latitud'], row['longitud']],
-                  popup=f"{row['nombre_cliente']}<br>Precio: {row['precio']}").add_to(mapa)
+for _, row in df_cercanas.iterrows():
+    folium.Marker(location=[row["latitud"], row["longitud"]],
+                  popup=f"{row['nombre_cliente']} - ${row['precio']}").add_to(marker_cluster)
 
-st_folium(mapa, width=700)
+st_data = st_folium(m, width=700)
+st.write(f"**Propiedades encontradas:** {len(df_cercanas)}")
 
-# --- FILTROS AVANZADOS ---
-st.sidebar.header("Filtros adicionales")
+# Agregar ciudad a propiedades cercanas
+df_cercanas["ciudad"] = df_cercanas.apply(lambda row: get_city(row["latitud"], row["longitud"]), axis=1)
+
+# Tabla con info
+st.dataframe(df_cercanas[["nombre_cliente", "precio", "area_m2", "banios", "alcobas", "ciudad"]])
+
+# Segundo bloque - Filtros globales
+st.header("📊 Análisis de propiedades")
+col1, col2, col3 = st.columns(3)
 
 alcobas_unique = sorted(df['alcobas'].dropna().unique())
 banios_unique = sorted(df['banios'].dropna().unique())
+area_unique = sorted(df['area_m2'].dropna().unique())
 
-alcobas_sel = st.sidebar.multiselect("Alcobas", alcobas_unique, default=alcobas_unique)
-banios_sel = st.sidebar.multiselect("Baños", banios_unique, default=banios_unique)
-area_min = st.sidebar.slider("Área mínima (m²)", min_value=0, max_value=500, value=0)
+with col1:
+    alcobas_filter = st.multiselect("Filtrar por Alcobas", alcobas_unique, default=alcobas_unique)
+with col2:
+    banios_filter = st.multiselect("Filtrar por Baños", banios_unique, default=banios_unique)
+with col3:
+    area_filter = st.multiselect("Filtrar por Área (m2)", area_unique, default=area_unique)
 
-df_filtrado = df_filtrado[
-    (df_filtrado['alcobas'].isin(alcobas_sel)) &
-    (df_filtrado['banios'].isin(banios_sel)) &
-    (df_filtrado['area_m2'] >= area_min)
+# Aplicar filtros a df general
+df_filtrado = df[
+    df['alcobas'].isin(alcobas_filter) &
+    df['banios'].isin(banios_filter) &
+    df['area_m2'].isin(area_filter)
 ]
 
-# --- TABLA ---
-st.subheader("Tabla de propiedades filtradas")
-st.dataframe(df_filtrado[['nombre_cliente', 'precio', 'area_m2', 'banios', 'alcobas', 'ciudad']])
+# Tabla filtrada
+st.subheader("📋 Tabla de propiedades filtradas")
+st.dataframe(df_filtrado[["nombre_cliente", "precio", "area_m2", "banios", "alcobas"]])
 
-# --- GRÁFICO DE PRECIOS POR CIUDAD ---
-st.subheader("Distribución de precios por ciudad")
-fig = px.box(df_filtrado, x='ciudad', y='precio', points="all", title="Precios de propiedades por ciudad")
-st.plotly_chart(fig)
+# Gráfico por coordenadas
+st.subheader("🗺️ Mapa de propiedades por coordenadas")
+fig_map = px.scatter_mapbox(df_filtrado,
+                            lat="latitud",
+                            lon="longitud",
+                            size="precio",
+                            color_discrete_sequence=["red"],
+                            zoom=10,
+                            height=500,
+                            hover_name="nombre_cliente",
+                            mapbox_style="carto-positron")
+st.plotly_chart(fig_map)
 
-# --- MAPA DE BURBUJAS POR PRECIO ---
-st.subheader("Mapa de propiedades (tamaño por precio)")
-mapa_precios = folium.Map(location=[lat_input, lon_input], zoom_start=14)
+# Gráfico de precios por ciudad
+df_filtrado["ciudad"] = df_filtrado.apply(lambda row: get_city(row["latitud"], row["longitud"]), axis=1)
+df_ciudad = df_filtrado.groupby("ciudad")["precio"].mean().reset_index()
 
-for _, row in df_filtrado.iterrows():
-    folium.CircleMarker(
-        location=[row['latitud'], row['longitud']],
-        radius=max(row['precio'] / 1000000, 3),
-        popup=f"{row['nombre_cliente']}<br>Precio: {row['precio']}",
-        color="green",
-        fill=True,
-        fill_opacity=0.6
-    ).add_to(mapa_precios)
-
-st_folium(mapa_precios, width=700)
+st.subheader("📍 Precio promedio por ciudad")
+fig_ciudad = px.bar(df_ciudad, x="ciudad", y="precio", color="ciudad", title="Precio promedio por ciudad")
+st.plotly_chart(fig_ciudad)
 
 
