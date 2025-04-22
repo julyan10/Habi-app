@@ -1,3 +1,5 @@
 streamlit
-geopy
 pandas
+geopy
+folium
+streamlit-folium
