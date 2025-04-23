@@ -10,7 +10,7 @@ from math import radians, cos, sin, sqrt, atan2
 
 
 st.set_page_config(layout="wide")
-st.title("\U0001F3E0 Dashboard de Propiedades - Habi")
+st.title("\U0001F3E0 Dashboard de propiedades - Hai Colombia / Julian Garcia")
 
 # --- Función para asignar ciudad basada en coordenadas ---
 def asignar_ciudad(lat, lon):
