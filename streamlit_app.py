@@ -70,7 +70,7 @@ for _, row in df_cercanas.iterrows():
 col_mapa, col_tabla = st.columns([2, 1])
 
 with col_mapa:
-    st_data = st_folium(m, width=700, height=450)
+    st_data = st_folium(m, width=700, height=300)
 
 with col_tabla:
     st.write(f"**Propiedades encontradas:** {len(df_cercanas)}")
