@@ -208,25 +208,28 @@ st.dataframe(
     })
 )
 
-# --- Precio promedio por ciudad con gráfico ---
-st.subheader("💰 Precio promedio por ciudad")
+# --- Precio promedio y cantidad de propiedades por ciudad ---
+st.subheader("💰 Precio promedio y cantidad de propiedades por ciudad")
 
-df_precio_ciudad = df_filtrado.groupby("ciudad")["precio"].mean().reset_index()
-df_precio_ciudad.columns = ["Ciudad", "Precio Promedio"]
-df_precio_ciudad["Precio Promedio"] = df_precio_ciudad["Precio Promedio"].round(0).astype(int)
+df_ciudad = df_filtrado.groupby("ciudad").agg(
+    Precio_Promedio=("precio", "mean"),
+    Cantidad=("precio", "count")
+).reset_index()
 
-fig_bar = px.bar(
-    df_precio_ciudad,
-    x="Ciudad",
-    y="Precio Promedio",
-    text="Precio Promedio",
-    labels={"Precio Promedio": "Precio Promedio (COP)"},
-    title="Promedio de precios por ciudad"
+df_ciudad["Precio_Promedio"] = df_ciudad["Precio_Promedio"].round(0).astype(int)
+
+fig_group = px.bar(
+    df_ciudad,
+    x="ciudad",
+    y=["Precio_Promedio", "Cantidad"],
+    barmode="group",
+    text_auto=True,
+    labels={"value": "Valor", "variable": "Métrica", "ciudad": "Ciudad"},
+    title="Precio promedio y cantidad de propiedades por ciudad"
 )
-fig_bar.update_traces(textposition="outside")
-fig_bar.update_layout(yaxis_tickformat=',', xaxis_title=None, yaxis_title=None)
 
-st.plotly_chart(fig_bar, use_container_width=True)
+fig_group.update_layout(yaxis_tickformat=',', xaxis_title=None, yaxis_title=None)
+st.plotly_chart(fig_group, use_container_width=True)
 
 # --- Mapa de propiedades por coordenadas ---
 st.subheader("\U0001F5FA️ Mapa de propiedades por zona")
