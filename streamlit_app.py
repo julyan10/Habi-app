@@ -268,6 +268,14 @@ fig_line = px.line(
 fig_line.update_layout(yaxis_tickformat=",", xaxis_tickangle=-45)
 st.plotly_chart(fig_line, use_container_width=True)
 
+with st.expander("🧠 Ver análisis del gráfico"):
+    st.markdown("""
+- Existe una **relación positiva entre el área y el precio promedio**: a mayor tamaño, mayor valor del inmueble.
+- **Medellín mantiene los precios promedio más altos** en todos los rangos de área, lo que sugiere un mayor valor del m² o una oferta más premium.
+- **Bogotá y Cali presentan precios más equilibrados**, especialmente en rangos intermedios.
+- Se observa un **salto notable en los precios** a partir de propiedades con más de 150 m², lo que podría indicar una categoría distinta de inmuebles (por ejemplo, casas o propiedades de lujo).
+    """)
+
 # --- Mapa de propiedades por coordenadas ---
 st.subheader("\U0001F5FA️ Mapa de propiedades por zona")
 fig_map = px.scatter_mapbox(df_filtrado,
