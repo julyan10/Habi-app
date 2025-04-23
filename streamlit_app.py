@@ -94,7 +94,7 @@ with col3:
 df_filtrado = df[
     df['alcobas'].isin(alcobas_filter) &
     df['banios'].isin(banios_filter) &
-    df['area_m2'].isin(area_filter)
+    (df['area_m2'] >= area_min) & (df['area_m2'] <= area_max)
 ]
 
 # Tabla filtrada
