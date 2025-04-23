@@ -148,9 +148,9 @@ WHERE Publicado_por = 'Carolina Castro Jaramillo'
     WHERE Publicado_por = 'Carolina Castro Jaramillo'
   );
 
-  🧠 Pregunta 4:
+ ### 🧠 Pregunta 4:
   
-¿Cuál es el promedio de precios de venta por tamaño de propiedad (en metros cuadrados) para propiedades que tienen al menos 3 habitaciones y 2 baños?
+> ¿Cuál es el promedio de precios de venta por tamaño de propiedad (en metros cuadrados) para propiedades que tienen al menos 3 habitaciones y 2 baños?
 Considere solo promedio de precio de venta mayor a 80.000.000 y muestre el top 20 ordenado de forma descendente por el promedio del precio de venta.
 
 ✅ Respuesta en SQL:
