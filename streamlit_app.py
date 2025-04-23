@@ -253,23 +253,34 @@ with col_mapa:
     marker_cluster = MarkerCluster().add_to(m)
 
     for _, row in df_cercanas.iterrows():
-        folium.Marker(location=[row["latitud"], row["longitud"]],
-                      popup=f"{row['nombre_cliente']} - ${row['precio']}").add_to(marker_cluster)
+        folium.Marker(
+            location=[row["latitud"], row["longitud"]],
+            popup=f"{row['nombre_cliente']} - ${row['precio']}"
+        ).add_to(marker_cluster)
 
     st_data = st_folium(m, width=700, height=450)
 
 with col_tabla:
     st.write(f"**Propiedades encontradas:** {len(df_cercanas)}")
-    df_cercanas["ciudad"] = df_cercanas.apply(lambda row: get_city(row["latitud"], row["longitud"]), axis=1)
+
+    if "ciudad" not in df_cercanas.columns:
+        df_cercanas = df_cercanas.copy()
+        df_cercanas["ciudad"] = df_cercanas.apply(
+            lambda row: get_city(row["latitud"], row["longitud"]), axis=1
+        )
+
+    columnas_mostrar = ["nombre_cliente", "precio", "area_m2", "banios", "alcobas", "ciudad"]
+    columnas_presentes = [col for col in columnas_mostrar if col in df_cercanas.columns]
+
     st.dataframe(
-    df_cercanas[["nombre_cliente", "precio", "area_m2", "banios", "alcobas", "ciudad"]].rename(columns={
-        "nombre_cliente": "Cliente",
-        "precio": "Precio",
-        "banios": "N_Baños",
-        "alcobas": "N_Alcobas",
-        "area_m2": "Área (m2)",
-        "ciudad": "Ciudad"
-    })
-)
+        df_cercanas[columnas_presentes].rename(columns={
+            "nombre_cliente": "Cliente",
+            "precio": "Precio",
+            "banios": "N_Baños",
+            "alcobas": "N_Alcobas",
+            "area_m2": "Área (m2)",
+            "ciudad": "Ciudad"
+        })
+    )
 
 
