@@ -3,36 +3,33 @@ import pandas as pd
 import plotly.express as px
 import folium
 from streamlit_folium import st_folium
-from geopy.geocoders import Nominatim
-from geopy.extra.rate_limiter import RateLimiter
 from folium import Circle
 from folium.plugins import MarkerCluster
 from math import radians, cos, sin, sqrt, atan2
 
 st.set_page_config(layout="wide")
-st.title("🏠 Dashboard de Propiedades - Habi")
+st.title("\U0001F3E0 Dashboard de Propiedades - Habi")
+
+# --- Función para asignar ciudad basada en coordenadas ---
+def asignar_ciudad(lat, lon):
+    if 4.4 <= lat <= 4.8 and -74.3 <= lon <= -73.9:
+        return "Bogotá"
+    elif 6.1 <= lat <= 6.4 and -75.7 <= lon <= -75.4:
+        return "Medellín"
+    elif 3.3 <= lat <= 3.6 and -76.6 <= lon <= -76.4:
+        return "Cali"
+    else:
+        return "Otra"
 
 # --- Cargar datos ---
 @st.cache_data
 def load_data():
     df = pd.read_csv("base prueba bi mid.csv")
+    df["ciudad"] = df.apply(lambda row: asignar_ciudad(row["latitud"], row["longitud"]), axis=1)
     return df
 
 df = load_data()
 
-# --- Geolocalizador ---
-geolocator = Nominatim(user_agent="geoapiHabi")
-reverse = RateLimiter(geolocator.reverse, min_delay_seconds=1)
-
-@st.cache_data
-def get_city(lat, lon):
-    try:
-        location = reverse((lat, lon), exactly_one=True, language='es')
-        if location and 'address' in location.raw:
-            address = location.raw['address']
-            return address.get('city') or address.get('town') or address.get('village')
-    except:
-        return None
 
 # --- Filtros globales ---
 st.markdown("""
@@ -167,16 +164,18 @@ ORDER BY Promedio_Precio_Venta DESC
 LIMIT 20;
 """)
 
-st.header("📊 Análisis de propiedades")
+st.header("\U0001F4CA Análisis de propiedades")
 
 with st.sidebar:
-    st.markdown("### 🎯 Filtros de Propiedades")
+    st.markdown("### \U0001F3AF Filtros de Propiedades")
 
     alcobas_unique = sorted(df['alcobas'].dropna().unique())
     banios_unique = sorted(df['banios'].dropna().unique())
+    ciudades_unique = sorted(df['ciudad'].dropna().unique())
 
     alcobas_filter = st.multiselect("Filtrar por Alcobas", alcobas_unique, default=alcobas_unique)
     banios_filter = st.multiselect("Filtrar por Baños", banios_unique, default=banios_unique)
+    ciudad_filter = st.multiselect("Filtrar por Ciudad", ciudades_unique, default=ciudades_unique)
 
     min_area = int(df['area_m2'].min())
     max_area = int(df['area_m2'].max())
@@ -192,23 +191,25 @@ with st.sidebar:
 df_filtrado = df[
     df['alcobas'].isin(alcobas_filter) &
     df['banios'].isin(banios_filter) &
+    df['ciudad'].isin(ciudad_filter) &
     (df['area_m2'] >= area_min) & (df['area_m2'] <= area_max)
 ]
 
 # --- Mostrar tabla filtrada ---
-st.subheader("📋 Tabla de propiedades filtradas")
+st.subheader("\U0001F4CB Tabla de propiedades filtradas")
 st.dataframe(
-    df_filtrado[["nombre_cliente", "precio", "area_m2", "banios", "alcobas"]].rename(columns={
+    df_filtrado[["nombre_cliente", "precio", "area_m2", "banios", "alcobas", "ciudad"]].rename(columns={
         "nombre_cliente": "Cliente",
         "precio": "Precio",
         "banios": "N_Baños",
         "alcobas": "N_Alcobas",
-        "area_m2": "Área (m2)"
+        "area_m2": "Área (m2)",
+        "ciudad": "Ciudad"
     })
 )
 
 # --- Mapa de propiedades por coordenadas ---
-st.subheader("🗺️ Mapa de propiedades por zona")
+st.subheader("\U0001F5FA️ Mapa de propiedades por zona")
 fig_map = px.scatter_mapbox(df_filtrado,
                             lat="latitud",
                             lon="longitud",
@@ -221,9 +222,9 @@ fig_map = px.scatter_mapbox(df_filtrado,
 st.plotly_chart(fig_map)
 
 # --- Mapa por coordenadas ingresadas ---
-st.header("🔍 Propiedades en un radio de 500 metros")
+st.header("\U0001F50D Propiedades en un radio de 500 metros")
 st.markdown(
-    "🔎 *Ingresa una latitud y longitud para identificar propiedades publicadas dentro de un radio de 500 metros.*"
+    "\U0001F50E *Ingresa una latitud y longitud para identificar propiedades publicadas dentro de un radio de 500 metros.*"
 )
 col1, col2 = st.columns(2)
 with col1:
@@ -263,12 +264,6 @@ with col_mapa:
 with col_tabla:
     st.write(f"**Propiedades encontradas:** {len(df_cercanas)}")
 
-    if "ciudad" not in df_cercanas.columns:
-        df_cercanas = df_cercanas.copy()
-        df_cercanas["ciudad"] = df_cercanas.apply(
-            lambda row: get_city(row["latitud"], row["longitud"]), axis=1
-        )
-
     columnas_mostrar = ["nombre_cliente", "precio", "area_m2", "banios", "alcobas", "ciudad"]
     columnas_presentes = [col for col in columnas_mostrar if col in df_cercanas.columns]
 
@@ -282,5 +277,4 @@ with col_tabla:
             "ciudad": "Ciudad"
         })
     )
-
 
