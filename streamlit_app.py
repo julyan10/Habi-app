@@ -34,137 +34,74 @@ df = load_data()
 
 
 # --- Filtros globales ---
+
 st.markdown("""
-### 🧠 Contexto del reto
-
-El rendimiento del equipo de Brokers (el equipo encargado de las ventas inmobiliarias) ha disminuido considerablemente desde hace 4 meses. Usted está en el equipo encargado de mejorar la productividad, ¿cuál sería su acción en los dos próximos sprints?
-
-**Solución 1:**
-
-#### Sprint 1: Diagnóstico y análisis  
-**Objetivo:** Identificar causas específicas de la baja productividad.
+with st.expander("🧠 Contexto del reto"):
+    st.markdown("""
+**Sprint 1: Diagnóstico y análisis**  
+Objetivo: Identificar causas específicas de la baja productividad.
 
 1. **Análisis de datos históricos de desempeño (últimos 6-12 meses):**
    - Ventas por broker, zona y tipo de propiedad.
    - Tiempo promedio de cierre por propiedad.
    - Número de contactos y conversiones.
+2. **Entrevistas y focus group con brokers**
+3. **Revisión de KPIs actuales**
+4. **Mapeo del funnel de ventas**
 
-2. **Entrevistas y focus group con brokers:**
-   - Identificar barreras operativas, técnicas o motivacionales.
-   - Recoger insumos cualitativos sobre el proceso de ventas.
+**Sprint 2: Implementación de quick wins**  
+Objetivo: Mejorar la productividad mientras se diseña una estrategia a mediano plazo.
 
-3. **Revisión de KPIs actuales:**
-   - Verificar si están alineados con los objetivos del negocio.
-   - Evaluar si los incentivos están bien estructurados.
+1. Automatización de tareas repetitivas  
+2. Capacitación express  
+3. Dashboard de desempeño en tiempo real  
+4. Revisión de zonas asignadas
+    """)
 
-4. **Mapeo del funnel de ventas:**
-   - Identificar puntos críticos donde se pierden oportunidades (p. ej., baja conversión en visitas o negociación).
+with st.expander("⚽ Habi Soccer – Nuevo producto"):
+    st.markdown("""
+**Fase 1: Diseño de estructura y captura de datos**
 
-#### Sprint 2: Implementación de quick wins  
-**Objetivo:** Implementar acciones para mejorar productividad mientras se diseña una estrategia a mediano plazo.
+- KPIs: campos vendidos, tiempo de adecuación, rentabilidad, etc.
+- Modelo de datos: campos, adecuaciones, ventas, estados.
+- Herramientas: formularios internos y almacenamiento ligero.
 
-1. **Automatización de tareas repetitivas:**
-   - Herramientas para agendar visitas o responder preguntas frecuentes.
+**Fase 2: Visualización y análisis**
 
-2. **Capacitación express:**
-   - Taller de habilidades blandas (negociación, objeciones).
-   - Uso efectivo de herramientas tecnológicas (CRM, dashboards).
+- Dashboard en Power BI o Looker Studio.
+- KPIs, filtros y mapa por ubicación.
+- Segmentación geográfica.
 
-3. **Dashboard de desempeño en tiempo real:**
-   - Visualización por broker para promover la autogestión del rendimiento.
-   - Ranking interno con KPIs claros (visitas, cierres, seguimiento).
+**Fase 3: Validación e iteración**
 
-4. **Revisión de zonas asignadas:**
-   - Redistribuir zonas si hay desequilibrio entre demanda y cobertura.
+- Feedback con usuarios clave.
+- Iterar y mejorar el modelo e integraciones.
+    """)
 
----
-
-### ⚽ Habi Soccer – Nuevo producto
-
-Habi va a lanzar un nuevo producto **«Habi fútbol»**, en el que la empresa comprará campos sintéticos y los venderá con césped nuevo y buenas gradas. Al tratarse de un nuevo negocio, no disponemos de una estructura de base de datos para medirlo.
-
-#### ¿Qué pasos darías para construir un MVP que permita a los directivos seguir el rendimiento de Habi Soccer?
-
----
-
-#### Fase 1: Diseño de estructura y captura de datos
-
-1. **Definir los indicadores clave (KPIs):**
-   - Nº de campos adquiridos / vendidos.
-   - Tiempo promedio de adecuación.
-   - Costo total vs precio de venta por campo.
-   - Rentabilidad por campo.
-   - Ubicación y demanda por zona.
-   - % de avance de cada proyecto (compra, adecuación, venta).
-
-2. **Diseñar el modelo de datos inicial (Tablas principales):**
-   - **Campos:** ID, dirección, tamaño, zona, estado actual.
-   - **Adecuaciones:** fecha inicio/fin, tipo de mejora, proveedor, costo.
-   - **Ventas:** comprador, precio, fecha cierre.
-   - **Estados del proceso:** pendiente, en adecuación, en venta, vendido.
-
-3. **Definir herramientas de captura:**
-   - Formulario interno con Google Forms, Power Apps o Airtable.
-   - Almacenamiento temporal en Google Sheets o base SQL ligera.
-
----
-
-#### Fase 2: Visualización y análisis
-
-1. **Conectar los datos a Power BI / Looker Studio:**
-   - Dashboard con filtros por zona, estado y fechas.
-   - KPIs en tarjetas: campos activos, vendidos, ingresos totales.
-   - Mapa con localización de campos.
-   - Gráficos de evolución temporal de ventas y adecuaciones.
-
-2. **Segmentación geográfica:**
-   - Análisis de demanda por zona para identificar zonas de oportunidad.
-
----
-
-#### Fase 3: Validación e iteración
-
-1. **Probar el MVP con los usuarios clave (comercial y directivos):**
-   - Obtener feedback para ajustar los datos y visualizaciones.
-
-2. **Iterar sobre el modelo:**
-   - Añadir nuevos campos, métricas o integraciones con sistemas existentes (ERP, CRM).
----
-
-### 🧠 Pregunta 3:
-
-> Escriba una sentencia SELECT para recuperar la ciudad, el precio de venta y la fecha de creación de todos los inmuebles que se han publicado por un precio superior al precio medio de venta de todos los inmuebles publicados para Carolina Castro Jaramillo.
-
-**✅ Respuesta en SQL:**
-
+with st.expander("🧠 Pregunta 3: SQL avanzada"):
+    st.code("""
 SELECT Ciudad, Precio_venta, Fecha_creacion  
 FROM propiedades  
 WHERE Publicado_por = 'Carolina Castro Jaramillo'  
 AND Precio_venta > (  
-    SELECT AVG(Precio_venta)  
-    FROM propiedades  
-    WHERE Publicado_por = 'Carolina Castro Jaramillo'  
+    SELECT AVG(Precio_venta)  
+    FROM propiedades  
+    WHERE Publicado_por = 'Carolina Castro Jaramillo'  
 );
+    """, language="sql")
 
----
-
-### 🧠 Pregunta 4:
-
-> ¿Cuál es el promedio de precios de venta por tamaño de propiedad (en metros cuadrados) para propiedades que tienen al menos 3 habitaciones y 2 baños?  
-> Considere solo promedio de precio de venta mayor a 80.000.000 y muestre el top 20 ordenado de forma descendente por el promedio del precio de venta.
-
-**✅ Respuesta en SQL:**
-
+with st.expander("🧠 Pregunta 4: Agrupación y filtros SQL"):
+    st.code("""
 SELECT Tamaño,  
-    AVG(Precio_venta) AS Promedio_Precio_Venta  
+    AVG(Precio_venta) AS Promedio_Precio_Venta  
 FROM propiedades  
 WHERE N_habitaciones >= 3  
-    AND N_baños >= 2  
+    AND N_baños >= 2  
 GROUP BY Tamaño  
 HAVING AVG(Precio_venta) > 80000000  
 ORDER BY Promedio_Precio_Venta DESC  
 LIMIT 20;
-""")
+    """, language="sql")
 
 st.header("\U0001F4CA Análisis de propiedades")
 
