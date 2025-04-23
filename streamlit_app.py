@@ -8,46 +8,31 @@ from geopy.extra.rate_limiter import RateLimiter
 from folium import Circle
 from folium.plugins import MarkerCluster
 from math import radians, cos, sin, sqrt, atan2
-import os
 
 st.set_page_config(layout="wide")
 st.title("🏠 Dashboard de Propiedades - Habi")
 
-# --- Cargar datos con ciudad precargada ---
+# --- Cargar datos ---
 @st.cache_data
 def load_data():
-    csv_con_ciudad = "base_prueba_ciudades.csv"
-
-    # Si ya existe el archivo con ciudades, lo carga directamente
-    if os.path.exists(csv_con_ciudad):
-        df = pd.read_csv(csv_con_ciudad)
-        return df
-
-    # Si no existe, carga el original y crea la columna 'ciudad'
     df = pd.read_csv("base prueba bi mid.csv")
-
-    geolocator = Nominatim(user_agent="geoapiHabi")
-    reverse = RateLimiter(geolocator.reverse, min_delay_seconds=1)
-
-    def get_city(lat, lon):
-        try:
-            location = reverse((lat, lon), exactly_one=True, language='es')
-            if location and 'address' in location.raw:
-                address = location.raw['address']
-                return address.get('city') or address.get('town') or address.get('village')
-        except:
-            return None
-
-    # Aplicar geolocalización y crear columna ciudad
-    df["ciudad"] = df.apply(lambda row: get_city(row["latitud"], row["longitud"]), axis=1)
-
-    # Guardar el nuevo CSV con ciudad incluida
-    df.to_csv(csv_con_ciudad, index=False)
-
     return df
 
-# Cargar los datos
 df = load_data()
+
+# --- Geolocalizador ---
+geolocator = Nominatim(user_agent="geoapiHabi")
+reverse = RateLimiter(geolocator.reverse, min_delay_seconds=1)
+
+@st.cache_data
+def get_city(lat, lon):
+    try:
+        location = reverse((lat, lon), exactly_one=True, language='es')
+        if location and 'address' in location.raw:
+            address = location.raw['address']
+            return address.get('city') or address.get('town') or address.get('village')
+    except:
+        return None
 
 # --- Filtros globales ---
 st.markdown("""
@@ -182,7 +167,6 @@ ORDER BY Promedio_Precio_Venta DESC
 LIMIT 20;
 """)
 
-# --- Sección: Análisis de propiedades ---
 st.header("📊 Análisis de propiedades")
 
 with st.sidebar:
@@ -214,30 +198,14 @@ df_filtrado = df[
 # --- Mostrar tabla filtrada ---
 st.subheader("📋 Tabla de propiedades filtradas")
 st.dataframe(
-    df_filtrado[["nombre_cliente", "precio", "area_m2", "banios", "alcobas", "ciudad"]].rename(columns={
+    df_filtrado[["nombre_cliente", "precio", "area_m2", "banios", "alcobas"]].rename(columns={
         "nombre_cliente": "Cliente",
         "precio": "Precio",
         "banios": "N_Baños",
         "alcobas": "N_Alcobas",
-        "area_m2": "Área (m2)",
-        "ciudad": "Ciudad"
+        "area_m2": "Área (m2)"
     })
 )
-
-# --- Gráfico de barras: número de propiedades por ciudad ---
-st.subheader("🏙️ Distribución de propiedades por ciudad")
-
-ciudades_count = df_filtrado["ciudad"].value_counts().reset_index()
-ciudades_count.columns = ["Ciudad", "Cantidad de propiedades"]
-
-fig_ciudades = px.bar(
-    ciudades_count,
-    x="Ciudad",
-    y="Cantidad de propiedades",
-    title="Cantidad de propiedades por ciudad",
-    text_auto=True
-)
-st.plotly_chart(fig_ciudades)
 
 # --- Mapa de propiedades por coordenadas ---
 st.subheader("🗺️ Mapa de propiedades por zona")
