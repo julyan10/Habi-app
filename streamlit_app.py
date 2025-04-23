@@ -138,35 +138,34 @@ Habi va a lanzar un nuevo producto **«Habi fútbol»**, en el que la empresa co
 
 **✅ Respuesta en SQL:**
 
-```sql
-SELECT Ciudad, Precio_venta, Fecha_creacion
-FROM propiedades
-WHERE Publicado_por = 'Carolina Castro Jaramillo'
-  AND Precio_venta > (
-    SELECT AVG(Precio_venta)
-    FROM propiedades
-    WHERE Publicado_por = 'Carolina Castro Jaramillo'
-  );
+SELECT Ciudad, Precio_venta, Fecha_creacion  
+FROM propiedades  
+WHERE Publicado_por = 'Carolina Castro Jaramillo'  
+AND Precio_venta > (  
+    SELECT AVG(Precio_venta)  
+    FROM propiedades  
+    WHERE Publicado_por = 'Carolina Castro Jaramillo'  
+);
+
+---
 
 ### 🧠 Pregunta 4:
-  
-> ¿Cuál es el promedio de precios de venta por tamaño de propiedad (en metros cuadrados) para propiedades que tienen al menos 3 habitaciones y 2 baños?
-Considere solo promedio de precio de venta mayor a 80.000.000 y muestre el top 20 ordenado de forma descendente por el promedio del precio de venta.
 
-**✅ Respuesta en SQL:
+> ¿Cuál es el promedio de precios de venta por tamaño de propiedad (en metros cuadrados) para propiedades que tienen al menos 3 habitaciones y 2 baños?  
+> Considere solo promedio de precio de venta mayor a 80.000.000 y muestre el top 20 ordenado de forma descendente por el promedio del precio de venta.
 
-```sql
-SELECT Tamaño, 
-       AVG(Precio_venta) AS Promedio_Precio_Venta
-FROM propiedades
-WHERE N_habitaciones >= 3
-  AND N_baños >= 2
-GROUP BY Tamaño
-HAVING AVG(Precio_venta) > 80000000
-ORDER BY Promedio_Precio_Venta DESC
+**✅ Respuesta en SQL:**
+
+SELECT Tamaño,  
+    AVG(Precio_venta) AS Promedio_Precio_Venta  
+FROM propiedades  
+WHERE N_habitaciones >= 3  
+    AND N_baños >= 2  
+GROUP BY Tamaño  
+HAVING AVG(Precio_venta) > 80000000  
+ORDER BY Promedio_Precio_Venta DESC  
 LIMIT 20;
 """)
----
 
 st.header("📊 Análisis de propiedades")
 
