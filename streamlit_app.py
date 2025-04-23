@@ -35,7 +35,6 @@ df = load_data()
 
 # --- Filtros globales ---
 
-st.markdown("""
 with st.expander("🧠 Contexto del reto"):
     st.markdown("""
 **Sprint 1: Diagnóstico y análisis**  
@@ -102,6 +101,7 @@ HAVING AVG(Precio_venta) > 80000000
 ORDER BY Promedio_Precio_Venta DESC  
 LIMIT 20;
     """, language="sql")
+
 
 st.header("\U0001F4CA Análisis de propiedades")
 
