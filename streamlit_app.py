@@ -255,21 +255,32 @@ fig_box = px.box(
 fig_box.update_layout(yaxis_tickformat=",")
 st.plotly_chart(fig_box, use_container_width=True)
 
-# --- Scatter plot: relación entre área y precio ---
-st.subheader("📐 Relación entre área y precio")
+# --- Línea: evolución del precio promedio según el área por ciudad ---
+st.subheader("📈 Tendencia de precio según área por ciudad")
 
-fig_disp = px.scatter(
-    df_filtrado,
-    x="area_m2",
-    y="precio",
+# Agrupamos área en bins para mayor legibilidad
+df_filtrado["area_bin"] = pd.cut(df_filtrado["area_m2"], bins=10)
+
+# Calculamos el precio promedio por ciudad y rango de área
+df_line = df_filtrado.groupby(["ciudad", "area_bin"]).agg(
+    Precio_Promedio=("precio", "mean")
+).reset_index()
+
+# Convertimos los bins en strings ordenadas
+df_line["area_bin"] = df_line["area_bin"].astype(str)
+
+# Gráfico de líneas
+fig_line = px.line(
+    df_line,
+    x="area_bin",
+    y="Precio_Promedio",
     color="ciudad",
-    size="precio",
-    hover_name="nombre_cliente",
-    title="Relación entre área (m2) y precio por ciudad",
-    labels={"area_m2": "Área (m2)", "precio": "Precio"}
+    markers=True,
+    title="Tendencia de precio promedio según área (agrupada) por ciudad",
+    labels={"area_bin": "Área (rangos)", "Precio_Promedio": "Precio Promedio"}
 )
-fig_disp.update_layout(yaxis_tickformat=",", xaxis_tickformat=",")
-st.plotly_chart(fig_disp, use_container_width=True)
+fig_line.update_layout(yaxis_tickformat=",", xaxis_tickangle=-45)
+st.plotly_chart(fig_line, use_container_width=True)
 
 # --- Mapa de propiedades por coordenadas ---
 st.subheader("\U0001F5FA️ Mapa de propiedades por zona")
