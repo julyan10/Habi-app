@@ -167,6 +167,7 @@ ORDER BY Promedio_Precio_Venta DESC
 LIMIT 20;
 """)
 
+# --- Sección: Análisis de propiedades ---
 st.header("📊 Análisis de propiedades")
 
 with st.sidebar:
@@ -198,14 +199,30 @@ df_filtrado = df[
 # --- Mostrar tabla filtrada ---
 st.subheader("📋 Tabla de propiedades filtradas")
 st.dataframe(
-    df_filtrado[["nombre_cliente", "precio", "area_m2", "banios", "alcobas"]].rename(columns={
+    df_filtrado[["nombre_cliente", "precio", "area_m2", "banios", "alcobas", "ciudad"]].rename(columns={
         "nombre_cliente": "Cliente",
         "precio": "Precio",
         "banios": "N_Baños",
         "alcobas": "N_Alcobas",
-        "area_m2": "Área (m2)"
+        "area_m2": "Área (m2)",
+        "ciudad": "Ciudad"
     })
 )
+
+# --- Gráfico de barras: número de propiedades por ciudad ---
+st.subheader("🏙️ Distribución de propiedades por ciudad")
+
+ciudades_count = df_filtrado["ciudad"].value_counts().reset_index()
+ciudades_count.columns = ["Ciudad", "Cantidad de propiedades"]
+
+fig_ciudades = px.bar(
+    ciudades_count,
+    x="Ciudad",
+    y="Cantidad de propiedades",
+    title="Cantidad de propiedades por ciudad",
+    text_auto=True
+)
+st.plotly_chart(fig_ciudades)
 
 # --- Mapa de propiedades por coordenadas ---
 st.subheader("🗺️ Mapa de propiedades por zona")
