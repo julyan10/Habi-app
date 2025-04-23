@@ -208,6 +208,14 @@ st.dataframe(
     })
 )
 
+# --- Precio promedio por ciudad ---
+st.subheader("💰 Precio promedio por ciudad")
+df_precio_ciudad = df_filtrado.groupby("ciudad")["precio"].mean().reset_index()
+df_precio_ciudad.columns = ["Ciudad", "Precio Promedio"]
+df_precio_ciudad["Precio Promedio"] = df_precio_ciudad["Precio Promedio"].round(0).astype(int)
+
+st.dataframe(df_precio_ciudad)
+
 # --- Mapa de propiedades por coordenadas ---
 st.subheader("\U0001F5FA️ Mapa de propiedades por zona")
 fig_map = px.scatter_mapbox(df_filtrado,
