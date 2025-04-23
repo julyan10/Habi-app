@@ -221,42 +221,41 @@ df_ciudad["Precio_Promedio"] = df_ciudad["Precio_Promedio"].round(0).astype(int)
 
 fig_dual = go.Figure()
 
-# Barra de Precio Promedio
+# Barra: Precio promedio
 fig_dual.add_trace(go.Bar(
     x=df_ciudad["ciudad"],
     y=df_ciudad["Precio_Promedio"],
     name="Precio Promedio",
-    marker_color='skyblue',
-    yaxis="y1",
+    marker_color="skyblue",
     text=df_ciudad["Precio_Promedio"],
-    textposition="outside"
+    textposition="outside",
+    yaxis="y"
 ))
 
-# Barra de Cantidad (eje secundario)
+# Barra: Cantidad (segundo eje)
 fig_dual.add_trace(go.Bar(
     x=df_ciudad["ciudad"],
     y=df_ciudad["Cantidad"],
     name="Cantidad de Propiedades",
-    marker_color='blue',
-    yaxis="y2",
+    marker_color="darkblue",
     text=df_ciudad["Cantidad"],
-    textposition="outside"
+    textposition="outside",
+    yaxis="y2"
 ))
 
 # Layout con doble eje
 fig_dual.update_layout(
     title="Precio promedio y cantidad de propiedades por ciudad",
-    xaxis_title="Ciudad",
+    xaxis=dict(title="Ciudad"),
     yaxis=dict(
         title="Precio Promedio (COP)",
         titlefont=dict(color="skyblue"),
-        tickfont=dict(color="skyblue"),
+        tickfont=dict(color="skyblue")
     ),
     yaxis2=dict(
         title="Cantidad de Propiedades",
-        titlefont=dict(color="blue"),
-        tickfont=dict(color="blue"),
-        anchor="x",
+        titlefont=dict(color="darkblue"),
+        tickfont=dict(color="darkblue"),
         overlaying="y",
         side="right"
     ),
