@@ -277,4 +277,3 @@ with col_tabla:
             "ciudad": "Ciudad"
         })
     )
-
