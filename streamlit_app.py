@@ -2,11 +2,12 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import folium
+import plotly.express as px
 from streamlit_folium import st_folium
 from folium import Circle
 from folium.plugins import MarkerCluster
 from math import radians, cos, sin, sqrt, atan2
-import plotly.graph_objects as go
+
 
 st.set_page_config(layout="wide")
 st.title("\U0001F3E0 Dashboard de Propiedades - Habi")
@@ -212,59 +213,33 @@ st.dataframe(
 # --- Precio promedio y cantidad de propiedades por ciudad ---
 st.subheader("💰 Precio promedio y cantidad de propiedades por ciudad")
 
+# Agrupamos
 df_ciudad = df_filtrado.groupby("ciudad").agg(
     Precio_Promedio=("precio", "mean"),
     Cantidad=("precio", "count")
 ).reset_index()
 
+# Redondeamos y preparamos para gráfico
 df_ciudad["Precio_Promedio"] = df_ciudad["Precio_Promedio"].round(0).astype(int)
 
-fig_dual = go.Figure()
+# Derretimos el dataframe para usarlo en plotly express
+df_melt = df_ciudad.melt(id_vars="ciudad", value_vars=["Precio_Promedio", "Cantidad"],
+                         var_name="Métrica", value_name="Valor")
 
-# Barra: Precio promedio
-fig_dual.add_trace(go.Bar(
-    x=df_ciudad["ciudad"],
-    y=df_ciudad["Precio_Promedio"],
-    name="Precio Promedio",
-    marker_color="skyblue",
-    text=df_ciudad["Precio_Promedio"],
-    textposition="outside",
-    yaxis="y"
-))
-
-# Barra: Cantidad (segundo eje)
-fig_dual.add_trace(go.Bar(
-    x=df_ciudad["ciudad"],
-    y=df_ciudad["Cantidad"],
-    name="Cantidad de Propiedades",
-    marker_color="darkblue",
-    text=df_ciudad["Cantidad"],
-    textposition="outside",
-    yaxis="y2"
-))
-
-# Layout con doble eje
-fig_dual.update_layout(
-    title="Precio promedio y cantidad de propiedades por ciudad",
-    xaxis=dict(title="Ciudad"),
-    yaxis=dict(
-        title="Precio Promedio (COP)",
-        titlefont=dict(color="skyblue"),
-        tickfont=dict(color="skyblue")
-    ),
-    yaxis2=dict(
-        title="Cantidad de Propiedades",
-        titlefont=dict(color="darkblue"),
-        tickfont=dict(color="darkblue"),
-        overlaying="y",
-        side="right"
-    ),
+# Creamos el gráfico
+fig = px.bar(
+    df_melt,
+    x="ciudad",
+    y="Valor",
+    color="Métrica",
     barmode="group",
-    legend=dict(x=0.5, xanchor="center", orientation="h"),
-    height=500
+    text_auto=True,
+    title="Precio promedio y cantidad de propiedades por ciudad",
+    labels={"ciudad": "Ciudad", "Valor": "Valor", "Métrica": "Métrica"}
 )
 
-st.plotly_chart(fig_dual, use_container_width=True)
+fig.update_layout(yaxis_tickformat=",", height=500)
+st.plotly_chart(fig, use_container_width=True)
 
 # --- Mapa de propiedades por coordenadas ---
 st.subheader("\U0001F5FA️ Mapa de propiedades por zona")
