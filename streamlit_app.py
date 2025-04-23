@@ -66,14 +66,17 @@ for _, row in df_cercanas.iterrows():
     folium.Marker(location=[row["latitud"], row["longitud"]],
                   popup=f"{row['nombre_cliente']} - ${row['precio']}").add_to(marker_cluster)
 
-st_data = st_folium(m, width=700)
-st.write(f"**Propiedades encontradas:** {len(df_cercanas)}")
+# Mostrar mapa y tabla en columnas
+col_mapa, col_tabla = st.columns([2, 1])
 
-# Agregar ciudad a propiedades cercanas
-df_cercanas["ciudad"] = df_cercanas.apply(lambda row: get_city(row["latitud"], row["longitud"]), axis=1)
+with col_mapa:
+    st_data = st_folium(m, width=700, height=450)
 
-# Tabla con info
-st.dataframe(df_cercanas[["nombre_cliente", "precio", "area_m2", "banios", "alcobas", "ciudad"]])
+with col_tabla:
+    st.write(f"**Propiedades encontradas:** {len(df_cercanas)}")
+    # Agregar ciudad
+    df_cercanas["ciudad"] = df_cercanas.apply(lambda row: get_city(row["latitud"], row["longitud"]), axis=1)
+    st.dataframe(df_cercanas[["nombre_cliente", "precio", "area_m2", "banios", "alcobas", "ciudad"]])
 
 # Segundo bloque - Filtros globales
 st.header("📊 Análisis de propiedades")
