@@ -210,14 +210,6 @@ st.dataframe(
     })
 )
 
-with st.expander("🧠 Ver análisis del gráfico"):
-    st.markdown("""
-- **Medellín presenta el precio promedio más alto** entre todas las ciudades, lo que sugiere una mayor valorización del mercado inmobiliario.
-- **Bogotá y Cali tienen precios promedio más moderados**, pero también concentran un mayor número de propiedades publicadas.
-- La categoría **“Otra” representa propiedades fuera de las 3 ciudades principales** y muestra un precio promedio alto, lo que indica que pueden ubicarse en zonas de alta valorización o baja oferta.
-- **La diferencia de escala entre precio y cantidad** resalta la necesidad de observar ambas métricas en conjunto al tomar decisiones estratégicas.
-    """)
-
 # --- Precio promedio y cantidad de propiedades por ciudad ---
 st.subheader("💰 Precio promedio y cantidad de propiedades por ciudad")
 
@@ -248,6 +240,14 @@ fig = px.bar(
 
 fig.update_layout(yaxis_tickformat=",", height=500)
 st.plotly_chart(fig, use_container_width=True)
+
+with st.expander("🧠 Ver análisis del gráfico"):
+    st.markdown("""
+- **Medellín presenta el precio promedio más alto** entre todas las ciudades, lo que sugiere una mayor valorización del mercado inmobiliario.
+- **Bogotá y Cali tienen precios promedio más moderados**, pero también concentran un mayor número de propiedades publicadas.
+- La categoría **“Otra” representa propiedades fuera de las 3 ciudades principales** y muestra un precio promedio alto, lo que indica que pueden ubicarse en zonas de alta valorización o baja oferta.
+- **La diferencia de escala entre precio y cantidad** resalta la necesidad de observar ambas métricas en conjunto al tomar decisiones estratégicas.
+    """)
 
 # --- Línea: evolución del precio promedio según el área por ciudad ---
 st.subheader("📈 Tendencia de precio según área por ciudad")
