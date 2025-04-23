@@ -78,8 +78,10 @@ with col_tabla:
     df_cercanas["ciudad"] = df_cercanas.apply(lambda row: get_city(row["latitud"], row["longitud"]), axis=1)
     st.dataframe(df_cercanas[["nombre_cliente", "precio", "area_m2", "banios", "alcobas", "ciudad"]])
 
+st.markdown("___")  # o prueba con "" para ningún espacio
+
 # Segundo bloque - Filtros globales
-st.markdown("## 📊 Análisis de propiedades")
+st.subheader("📊 Análisis de propiedades")
 
 # Filtros en la barra lateral
 with st.sidebar:
