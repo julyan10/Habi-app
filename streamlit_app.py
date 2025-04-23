@@ -241,6 +241,36 @@ fig = px.bar(
 fig.update_layout(yaxis_tickformat=",", height=500)
 st.plotly_chart(fig, use_container_width=True)
 
+# --- Boxplot: distribución de precios por ciudad ---
+st.subheader("📦 Distribución de precios por ciudad")
+
+fig_box = px.box(
+    df_filtrado,
+    x="ciudad",
+    y="precio",
+    title="Distribución de precios por ciudad",
+    labels={"precio": "Precio", "ciudad": "Ciudad"},
+    points="all"
+)
+fig_box.update_layout(yaxis_tickformat=",")
+st.plotly_chart(fig_box, use_container_width=True)
+
+# --- Scatter plot: relación entre área y precio ---
+st.subheader("📐 Relación entre área y precio")
+
+fig_disp = px.scatter(
+    df_filtrado,
+    x="area_m2",
+    y="precio",
+    color="ciudad",
+    size="precio",
+    hover_name="nombre_cliente",
+    title="Relación entre área (m2) y precio por ciudad",
+    labels={"area_m2": "Área (m2)", "precio": "Precio"}
+)
+fig_disp.update_layout(yaxis_tickformat=",", xaxis_tickformat=",")
+st.plotly_chart(fig_disp, use_container_width=True)
+
 # --- Mapa de propiedades por coordenadas ---
 st.subheader("\U0001F5FA️ Mapa de propiedades por zona")
 fig_map = px.scatter_mapbox(df_filtrado,
