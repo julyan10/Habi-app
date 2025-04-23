@@ -65,7 +65,15 @@ df_filtrado = df[
 
 # --- Mostrar tabla filtrada ---
 st.subheader("📋 Tabla de propiedades filtradas")
-st.dataframe(df_filtrado[["nombre_cliente", "precio", "area_m2", "banios", "alcobas"]])
+st.dataframe(
+    df_filtrado[["nombre_cliente", "precio", "area_m2", "banios", "alcobas"]].rename(columns={
+        "nombre_cliente": "Cliente",
+        "precio": "Precio",
+        "banios": "N_Baños",
+        "alcobas": "N_Alcobas",
+        "area_m2": "Área (m2)"
+    })
+)
 
 # --- Mapa de propiedades por coordenadas ---
 st.subheader("🗺️ Mapa de propiedades por coordenadas")
@@ -118,6 +126,15 @@ with col_mapa:
 with col_tabla:
     st.write(f"**Propiedades encontradas:** {len(df_cercanas)}")
     df_cercanas["ciudad"] = df_cercanas.apply(lambda row: get_city(row["latitud"], row["longitud"]), axis=1)
-    st.dataframe(df_cercanas[["nombre_cliente", "precio", "area_m2", "banios", "alcobas", "ciudad"]])
+    st.dataframe(
+    df_cercanas[["nombre_cliente", "precio", "area_m2", "banios", "alcobas", "ciudad"]].rename(columns={
+        "nombre_cliente": "Cliente",
+        "precio": "Precio",
+        "banios": "N_Baños",
+        "alcobas": "N_Alcobas",
+        "area_m2": "Área (m2)",
+        "ciudad": "Ciudad"
+    })
+)
 
 
