@@ -97,19 +97,31 @@ df_filtrado = df[
     (df['area_m2'] >= area_min) & (df['area_m2'] <= area_max)
 ]
 
-# Tabla filtrada
-st.subheader("📋 Tabla de propiedades filtradas")
-st.dataframe(df_filtrado[["nombre_cliente", "precio", "area_m2", "banios", "alcobas"]])
+# Segundo bloque - Filtros globales
+st.header("📊 Análisis de propiedades")
 
-# Gráfico por coordenadas
-st.subheader("🗺️ Mapa de propiedades por coordenadas")
-fig_map = px.scatter_mapbox(df_filtrado,
-                            lat="latitud",
-                            lon="longitud",
-                            size="precio",
-                            color_discrete_sequence=["red"],
-                            zoom=10,
-                            height=500,
-                            hover_name="nombre_cliente",
-                            mapbox_style="carto-positron")
-st.plotly_chart(fig_map)
+with st.sidebar:
+    st.markdown("### 🎯 Filtros de Propiedades")
+
+    alcobas_unique = sorted(df['alcobas'].dropna().unique())
+    banios_unique = sorted(df['banios'].dropna().unique())
+
+    alcobas_filter = st.multiselect("Filtrar por Alcobas", alcobas_unique, default=alcobas_unique)
+    banios_filter = st.multiselect("Filtrar por Baños", banios_unique, default=banios_unique)
+
+    min_area = int(df['area_m2'].min())
+    max_area = int(df['area_m2'].max())
+    area_min, area_max = st.slider(
+        "Filtrar por Área (m2)",
+        min_value=min_area,
+        max_value=max_area,
+        value=(min_area, max_area),
+        step=1
+    )
+
+# Aplicar filtros a df general
+df_filtrado = df[
+    df['alcobas'].isin(alcobas_filter) &
+    df['banios'].isin(banios_filter) &
+    (df['area_m2'] >= area_min) & (df['area_m2'] <= area_max)
+]
