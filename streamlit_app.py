@@ -12,27 +12,31 @@ from math import radians, cos, sin, sqrt, atan2
 st.set_page_config(layout="wide")
 st.title("🏠 Dashboard de Propiedades - Habi")
 
-# --- Cargar datos ---
+# --- Cargar datos con ciudad precargada ---
 @st.cache_data
 def load_data():
     df = pd.read_csv("base prueba bi mid.csv")
+
+    # Verifica si ya tiene la columna ciudad
+    if "ciudad" not in df.columns:
+        geolocator = Nominatim(user_agent="geoapiHabi")
+        reverse = RateLimiter(geolocator.reverse, min_delay_seconds=1)
+
+        def get_city(lat, lon):
+            try:
+                location = reverse((lat, lon), exactly_one=True, language='es')
+                if location and 'address' in location.raw:
+                    address = location.raw['address']
+                    return address.get('city') or address.get('town') or address.get('village')
+            except:
+                return None
+
+        # Crear la columna ciudad
+        df["ciudad"] = df.apply(lambda row: get_city(row["latitud"], row["longitud"]), axis=1)
+
     return df
 
 df = load_data()
-
-# --- Geolocalizador ---
-geolocator = Nominatim(user_agent="geoapiHabi")
-reverse = RateLimiter(geolocator.reverse, min_delay_seconds=1)
-
-@st.cache_data
-def get_city(lat, lon):
-    try:
-        location = reverse((lat, lon), exactly_one=True, language='es')
-        if location and 'address' in location.raw:
-            address = location.raw['address']
-            return address.get('city') or address.get('town') or address.get('village')
-    except:
-        return None
 
 # --- Filtros globales ---
 st.markdown("""
