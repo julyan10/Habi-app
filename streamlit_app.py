@@ -6,6 +6,7 @@ from streamlit_folium import st_folium
 from folium import Circle
 from folium.plugins import MarkerCluster
 from math import radians, cos, sin, sqrt, atan2
+import plotly.graph_objects as go
 
 st.set_page_config(layout="wide")
 st.title("\U0001F3E0 Dashboard de Propiedades - Habi")
@@ -218,18 +219,53 @@ df_ciudad = df_filtrado.groupby("ciudad").agg(
 
 df_ciudad["Precio_Promedio"] = df_ciudad["Precio_Promedio"].round(0).astype(int)
 
-fig_group = px.bar(
-    df_ciudad,
-    x="ciudad",
-    y=["Precio_Promedio", "Cantidad"],
+fig_dual = go.Figure()
+
+# Barra de Precio Promedio
+fig_dual.add_trace(go.Bar(
+    x=df_ciudad["ciudad"],
+    y=df_ciudad["Precio_Promedio"],
+    name="Precio Promedio",
+    marker_color='skyblue',
+    yaxis="y1",
+    text=df_ciudad["Precio_Promedio"],
+    textposition="outside"
+))
+
+# Barra de Cantidad (eje secundario)
+fig_dual.add_trace(go.Bar(
+    x=df_ciudad["ciudad"],
+    y=df_ciudad["Cantidad"],
+    name="Cantidad de Propiedades",
+    marker_color='blue',
+    yaxis="y2",
+    text=df_ciudad["Cantidad"],
+    textposition="outside"
+))
+
+# Layout con doble eje
+fig_dual.update_layout(
+    title="Precio promedio y cantidad de propiedades por ciudad",
+    xaxis_title="Ciudad",
+    yaxis=dict(
+        title="Precio Promedio (COP)",
+        titlefont=dict(color="skyblue"),
+        tickfont=dict(color="skyblue"),
+    ),
+    yaxis2=dict(
+        title="Cantidad de Propiedades",
+        titlefont=dict(color="blue"),
+        tickfont=dict(color="blue"),
+        anchor="x",
+        overlaying="y",
+        side="right"
+    ),
     barmode="group",
-    text_auto=True,
-    labels={"value": "Valor", "variable": "Métrica", "ciudad": "Ciudad"},
-    title="Precio promedio y cantidad de propiedades por ciudad"
+    legend=dict(x=0.5, xanchor="center", orientation="h"),
+    height=500
 )
 
-fig_group.update_layout(yaxis_tickformat=',', xaxis_title=None, yaxis_title=None)
-st.plotly_chart(fig_group, use_container_width=True)
+st.plotly_chart(fig_dual, use_container_width=True)
 
 # --- Mapa de propiedades por coordenadas ---
 st.subheader("\U0001F5FA️ Mapa de propiedades por zona")
