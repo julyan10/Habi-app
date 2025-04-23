@@ -90,6 +90,9 @@ st.plotly_chart(fig_map)
 
 # --- Mapa por coordenadas ingresadas ---
 st.header("🔍 Propiedades en un radio de 500 metros")
+st.markdown(
+    "🔎 *Ingresa una latitud y longitud para identificar propiedades publicadas dentro de un radio de 500 metros.*"
+)
 col1, col2 = st.columns(2)
 with col1:
     lat_input = st.number_input("Latitud", value=4.5997, format="%.6f")
