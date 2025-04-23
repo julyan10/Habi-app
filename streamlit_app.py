@@ -147,7 +147,6 @@ WHERE Publicado_por = 'Carolina Castro Jaramillo'
     FROM propiedades
     WHERE Publicado_por = 'Carolina Castro Jaramillo'
   );
----
 
 ### 🧠 Pregunta 4:
   
@@ -167,6 +166,7 @@ HAVING AVG(Precio_venta) > 80000000
 ORDER BY Promedio_Precio_Venta DESC
 LIMIT 20;
 """)
+---
 
 st.header("📊 Análisis de propiedades")
 
