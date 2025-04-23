@@ -216,7 +216,7 @@ st.subheader("💰 Precio promedio y cantidad de propiedades por ciudad")
 # Agrupamos
 df_ciudad = df_filtrado.groupby("ciudad").agg(
     Precio_Promedio=("precio", "mean"),
-    Cantidad=("Ciudad", "count")
+    Cantidad=("nombre_cliente", "count")
 ).reset_index()
 
 # Redondeamos y preparamos para gráfico
