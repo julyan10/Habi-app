@@ -35,7 +35,7 @@ df = load_data()
 
 # --- Filtros globales ---
 
-with st.expander("🧠 Contexto del reto"):
+with st.expander("🧠 Contexto del reto - 1 pregunta"):
     st.markdown("""
 **Sprint 1: Diagnóstico y análisis**  
 Objetivo: Identificar causas específicas de la baja productividad.
@@ -57,7 +57,7 @@ Objetivo: Mejorar la productividad mientras se diseña una estrategia a mediano 
 4. Revisión de zonas asignadas
     """)
 
-with st.expander("⚽ Habi Soccer – Nuevo producto"):
+with st.expander("⚽ Habi Soccer – Nuevo producto - 2 pregunta"):
     st.markdown("""
 **Fase 1: Diseño de estructura y captura de datos**
 
