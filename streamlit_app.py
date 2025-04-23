@@ -11,7 +11,7 @@ from math import radians, cos, sin, sqrt, atan2
 
 st.set_page_config(layout="wide")
 
-st.title("🏠 Dashboard de Propiedades - Habi")
+st.title("🏠 Dashboard de propiedades - Habi")
 
 # Cargar datos
 @st.cache_data
