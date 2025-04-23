@@ -79,7 +79,7 @@ with col_tabla:
     st.dataframe(df_cercanas[["nombre_cliente", "precio", "area_m2", "banios", "alcobas", "ciudad"]])
 
 # Segundo bloque - Filtros globales
-st.header("📊 Análisis de propiedades")
+st.markdown("## 📊 Análisis de propiedades")
 
 # Filtros en la barra lateral
 with st.sidebar:
