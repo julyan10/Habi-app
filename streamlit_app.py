@@ -147,7 +147,7 @@ WHERE Publicado_por = 'Carolina Castro Jaramillo'
     FROM propiedades
     WHERE Publicado_por = 'Carolina Castro Jaramillo'
   );
----
+""
 
 ### 🧠 Pregunta 4:
   
