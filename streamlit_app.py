@@ -8,6 +8,7 @@ from geopy.extra.rate_limiter import RateLimiter
 from folium import Circle
 from folium.plugins import MarkerCluster
 from math import radians, cos, sin, sqrt, atan2
+import os
 
 st.set_page_config(layout="wide")
 st.title("🏠 Dashboard de Propiedades - Habi")
@@ -15,27 +16,37 @@ st.title("🏠 Dashboard de Propiedades - Habi")
 # --- Cargar datos con ciudad precargada ---
 @st.cache_data
 def load_data():
+    csv_con_ciudad = "base_prueba_ciudades.csv"
+
+    # Si ya existe el archivo con ciudades, lo carga directamente
+    if os.path.exists(csv_con_ciudad):
+        df = pd.read_csv(csv_con_ciudad)
+        return df
+
+    # Si no existe, carga el original y crea la columna 'ciudad'
     df = pd.read_csv("base prueba bi mid.csv")
 
-    # Verifica si ya tiene la columna ciudad
-    if "ciudad" not in df.columns:
-        geolocator = Nominatim(user_agent="geoapiHabi")
-        reverse = RateLimiter(geolocator.reverse, min_delay_seconds=1)
+    geolocator = Nominatim(user_agent="geoapiHabi")
+    reverse = RateLimiter(geolocator.reverse, min_delay_seconds=1)
 
-        def get_city(lat, lon):
-            try:
-                location = reverse((lat, lon), exactly_one=True, language='es')
-                if location and 'address' in location.raw:
-                    address = location.raw['address']
-                    return address.get('city') or address.get('town') or address.get('village')
-            except:
-                return None
+    def get_city(lat, lon):
+        try:
+            location = reverse((lat, lon), exactly_one=True, language='es')
+            if location and 'address' in location.raw:
+                address = location.raw['address']
+                return address.get('city') or address.get('town') or address.get('village')
+        except:
+            return None
 
-        # Crear la columna ciudad
-        df["ciudad"] = df.apply(lambda row: get_city(row["latitud"], row["longitud"]), axis=1)
+    # Aplicar geolocalización y crear columna ciudad
+    df["ciudad"] = df.apply(lambda row: get_city(row["latitud"], row["longitud"]), axis=1)
+
+    # Guardar el nuevo CSV con ciudad incluida
+    df.to_csv(csv_con_ciudad, index=False)
 
     return df
 
+# Cargar los datos
 df = load_data()
 
 # --- Filtros globales ---
