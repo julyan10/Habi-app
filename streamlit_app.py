@@ -76,7 +76,7 @@ st.dataframe(
 )
 
 # --- Mapa de propiedades por coordenadas ---
-st.subheader("🗺️ Mapa de propiedades por coordenadas")
+st.subheader("🗺️ Mapa de propiedades por zona")
 fig_map = px.scatter_mapbox(df_filtrado,
                             lat="latitud",
                             lon="longitud",
